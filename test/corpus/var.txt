@@ -35,7 +35,7 @@ private var myVariable as String = "shiz";
 
 (source_file
     (variable_declaration
-        (visibility)
+        (visibility_modifier)
         (identifier)
         (type)
         (string_literal)))

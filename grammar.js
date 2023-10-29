@@ -1,9 +1,28 @@
+const PRECEDENCES = {
+    new: 1,
+    logical_not: 1,
+    bitwise_not: 1,
+    function_invocation: 1,
+    multiplication: 2,
+    modulo: 2,
+    bitwise_and: 2,
+    bit_shift: 2,
+    addition: 3,
+    bitwise_or: 3,
+    bitwise_xor: 3,
+    comparisons: 4,
+    logical_and: 5,
+    logical_or: 6,
+    conditional: 7
+}
+
 module.exports = grammar({
     name: 'monkeyc',
 
     word: $ => $._identifier,
 
     rules: {
+        // backbone of the entire operation
         source_file: $ => repeat($._statement),
 
         _statement: $ => choice(
@@ -11,7 +30,41 @@ module.exports = grammar({
             $.comment
         ),
 
-        visibility: $ => choice(
+        // Operators
+        
+        _additive_operator: $ => prec(PRECEDENCES.addition, choice(
+            "+",
+            "-"
+        )),
+
+        _multiplicative_operator: $ => prec(PRECEDENCES.multiplication, choice(
+            "*",
+            "/"
+        )),
+
+        _modulo_operator: $ => prec(PRECEDENCES.modulo, "%"),
+
+        _bitwise_operator: $ => choice(
+            prec(PRECEDENCES.bitwise_not, "~"),
+            prec(PRECEDENCES.bit_shift, "<<"),
+            prec(PRECEDENCES.bit_shift, ">>"),
+            prec(PRECEDENCES.bitwise_and, "&"),
+            prec(PRECEDENCES.bitwise_or, "|"),
+            prec(PRECEDENCES.bitwise_xor, "^"),
+        ),
+
+        _comparison_operator: $ => prec(PRECEDENCES.comparisons, choice(
+            "<",
+            "<=",
+            ">",
+            ">=",
+            "==",
+            "!=",
+        )), 
+
+        // Modifiers
+
+        visibility_modifier: $ => choice(
             'public',
             'private',
             'protected'
@@ -22,6 +75,30 @@ module.exports = grammar({
             field('type', $._identifier)
         ),
 
+        // Expressions
+
+        _expression: $ => choice(
+            $._literal
+        ),
+
+        unary_expression: $ => choice(
+        ), // FIXME: implement this bitch
+
+        binary_expression: $ => choice(
+            $._additive_expression,
+            $._multiplicative_expression
+            // FIXME: this shi too
+        ),
+
+        _additive_expression: $ => binary_expr($, $._additive_operator),
+
+        _multiplicative_expression: $ => binary_expr($, $._multiplicative_operator),
+
+        _semicolon: $ => ';',
+
+        _identifier: $ => /[a-zA-Z_]+/,
+        identifier: $ => $._identifier,
+        
         _literal: $ => choice(
             $.bool_literal,
             $.null_literal,
@@ -29,15 +106,6 @@ module.exports = grammar({
             $.string_literal,
             $.array_literal
         ),
-
-        _expression: $ => choice(
-            $._literal
-        ),
-
-        _semicolon: $ => ';',
-
-        _identifier: $ => /[a-zA-Z_]+/,
-        identifier: $ => $._identifier,
 
         escape_sequence: $ => token(prec(1, seq(
             '\\',
@@ -85,7 +153,7 @@ module.exports = grammar({
         ),
 
         variable_declaration: $ => seq(
-            optional($.visibility),
+            optional($.visibility_modifier),
             'var',
             $.identifier,
             optional($.type),
@@ -114,4 +182,12 @@ module.exports = grammar({
 
 function sep1(rule, separator) {
     return seq(rule, repeat(seq(separator, rule)));
+}
+
+function binary_expr($, operator) {
+    return seq(
+        field('lhs', $._expression),
+        field('op', operator),
+        field('rhs', $._expression)
+    )
 }
