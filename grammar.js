@@ -7,7 +7,8 @@ module.exports = grammar({
         source_file: $ => repeat($._statement),
 
         _statement: $ => choice(
-            $.variable_declaration
+            $.variable_declaration,
+            $.comment
         ),
 
         visibility: $ => choice(
@@ -16,42 +17,27 @@ module.exports = grammar({
             'protected'
         ),
 
-        _type_declaration: $ => seq(
+        type: $ => seq(
             'as',
-            field('type', $.identifier)
+            field('type', $._identifier)
         ),
 
-        variable_declaration: $ => seq(
-            optional($.visibility),
-            'var',
-            $.identifier,
-            optional($._type_declaration),
-            '=',
-            field('value', $._expression),
-            $._semicolon
+        _literal: $ => choice(
+            $.bool_literal,
+            $.null_literal,
+            $.number_literal,
+            $.string_literal,
+            $.array_literal
+        ),
+
+        _expression: $ => choice(
+            $._literal
         ),
 
         _semicolon: $ => ';',
 
         _identifier: $ => /[a-zA-Z_]+/,
         identifier: $ => $._identifier,
-
-        string: $ => seq(
-            '"',
-            repeat(choice(
-                token.immediate(prec(1, /[^"\\]+/)),
-                $.escape_sequence
-            )),
-            '"'
-        ),
-
-        number: $ => /\d+/,
-
-        array: $ => seq(
-            '[',
-                commaSep(/.+/),
-                ']'
-        ),
 
         escape_sequence: $ => token(prec(1, seq(
             '\\',
@@ -64,6 +50,29 @@ module.exports = grammar({
             )
         ))),
 
+        string_literal: $ => seq(
+            '"',
+            repeat(choice(
+                token.immediate(prec(1, /[^"\\]+/)),
+                $.escape_sequence
+            )),
+            '"'
+        ),
+
+        number_literal: $ => /\d+/,
+
+        bool_literal: $ => choice('true', 'false'),
+
+        // shamelessly stolen from tree-sitter-swift
+        array_literal: ($) => seq(
+            "[",
+                optional(sep1(field("element", $._expression), ",")),
+                optional(","),
+                "]"
+        ),
+
+        null_literal: $ => token('null'),
+
         builtin_type: $ => choice(
             'Any',
             'Void',
@@ -75,41 +84,34 @@ module.exports = grammar({
             'Toybox'
         ),
 
-        annotation: $ => seq(
-            '(',
-            field('annotation_name',
-            choice(
-                ':background',
-                ':debug',
-                ':glance',
-                ':release',
-                ':test',
-                ':typecheck',
-                /:[^)]*/,
-            )),
-            ')'
+        variable_declaration: $ => seq(
+            optional($.visibility),
+            'var',
+            $.identifier,
+            optional($.type),
+            '=',
+            field('value', $._expression),
+            $._semicolon
         ),
 
-        _literal: $ => choice(
-             'true',
-            'false',
-            'null',
-            $.number,
-            $.string
-        ),
-    
-        _expression: $ => choice(
-            $._literal
-        ),
-        
-        if_statement: $ => ''
+        comment: $ => token(choice(
+            seq('//', /(\\+(.|\r?\n)|[^\\\n])*/),
+            seq(
+                '/*',
+                /[^*]*\*+([^/*][^*]*\*+)*/,
+                '/',
+            ),
+        )),
+
+        if_statement: $ => seq(
+            'if',
+            '(',
+                // TODO: finish
+                ')',
+        )
     }
 });
 
-function commaSep1(rule) {
-    return seq(rule, repeat(seq(',', rule)));
-}
-
-function commaSep(rule) {
-    return optional(commaSep1(rule));
+function sep1(rule, separator) {
+    return seq(rule, repeat(seq(separator, rule)));
 }

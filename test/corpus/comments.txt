@@ -1,0 +1,14 @@
+===
+single line comment
+===
+
+// this is my comment fellas
+//and this is too
+///hey this should be a comment too
+
+---
+
+(source_file
+    (comment)
+    (comment)
+    (comment))

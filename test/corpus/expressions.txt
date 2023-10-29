@@ -1,0 +1,35 @@
+===
+literals
+===
+
+var n = null;
+var s = "string";
+var b = true;
+var nu = 123456;
+var a = [];
+var af = ["is", "this", true];
+
+---
+
+(source_file
+    (variable_declaration
+        (identifier)
+        (null_literal))
+    (variable_declaration
+        (identifier)
+        (string_literal))
+    (variable_declaration
+        (identifier)
+        (bool_literal))
+    (variable_declaration
+        (identifier)
+        (number_literal))
+    (variable_declaration
+        (identifier)
+        (array_literal))
+    (variable_declaration
+        (identifier)
+        (array_literal
+            (string_literal)
+            (string_literal)
+            (bool_literal))))

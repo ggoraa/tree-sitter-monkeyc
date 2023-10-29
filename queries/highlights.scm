@@ -1,1 +1,2 @@
 "var" @keyword
+(type) @type

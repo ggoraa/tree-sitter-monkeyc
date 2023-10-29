@@ -9,7 +9,7 @@ var myVariable = "some shiz";
 (source_file
     (variable_declaration
         (identifier)
-        (string)))
+        (string_literal)))
 
 ===
 variable with type declaration
@@ -22,8 +22,8 @@ var myVariable as Number = 2;
 (source_file
     (variable_declaration
         (identifier)
-        (identifier)
-        (number)))
+        (type)
+        (number_literal)))
 
 ===
 variable with visibility
@@ -37,6 +37,6 @@ private var myVariable as String = "shiz";
     (variable_declaration
         (visibility)
         (identifier)
-        (identifier)
-        (string)))
+        (type)
+        (string_literal)))
 
