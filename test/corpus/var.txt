@@ -1,0 +1,42 @@
+===
+simple variable
+===
+
+var myVariable = "some shiz";
+
+---
+
+(source_file
+    (variable_declaration
+        (identifier)
+        (string)))
+
+===
+variable with type declaration
+===
+
+var myVariable as Number = 2;
+
+---
+
+(source_file
+    (variable_declaration
+        (identifier)
+        (identifier)
+        (number)))
+
+===
+variable with visibility
+===
+
+private var myVariable as String = "shiz";
+
+---
+
+(source_file
+    (variable_declaration
+        (visibility)
+        (identifier)
+        (identifier)
+        (string)))
+

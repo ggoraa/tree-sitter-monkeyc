@@ -1,0 +1,6 @@
+node_modules
+src
+bindings
+binding.gyp
+Cargo.toml
+package-lock.json
