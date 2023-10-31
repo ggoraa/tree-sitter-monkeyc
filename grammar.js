@@ -68,7 +68,6 @@ module.exports = grammar({
         
         _additive_operator: $ => choice("+", "-"),
         _multiplicative_operator: $ => choice("*", "/"),
-        _modulo_operator: $ => "%",
         _bitwise_not_operator: $ => "~",
         _bit_shift_operator: $ => choice("<<", ">>"),
         _bitwise_and_operator: $ => "&",
@@ -114,7 +113,7 @@ module.exports = grammar({
         ),
         _additive_expression: $ => binary_expr($, PRECEDENCES.addition, $._additive_operator),
         _multiplicative_expression: $ => binary_expr($, PRECEDENCES.multiplication, $._multiplicative_operator),
-        _modulo_expression: $ => binary_expr($, PRECEDENCES.modulo, $._modulo_operator),
+        _modulo_expression: $ => binary_expr($, PRECEDENCES.modulo, "%"),
         _bitwise_not_expression: $ => binary_expr($, PRECEDENCES.bitwise_not, $._bitwise_not_operator),
         _bit_shift_expression: $ => binary_expr($, PRECEDENCES.bit_shift, $._bit_shift_operator),
         _bitwise_and_expression: $ => binary_expr($, PRECEDENCES.bitwise_and, $._bitwise_and_operator),
