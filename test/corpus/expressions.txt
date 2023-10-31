@@ -33,3 +33,36 @@ var af = ["is", "this", true];
             (string_literal)
             (string_literal)
             (bool_literal))))
+
+===
+binary expressions
+===
+
+var n = 1 + 2;
+var n = 1 - 2;
+var n = 1 * 2;
+var n = 1 / 2;
+
+---
+
+(source_file
+    (variable_declaration
+        (identifier)
+        (binary_expression
+            (number_literal)
+            (number_literal)))
+    (variable_declaration
+        (identifier)
+        (binary_expression
+            (number_literal)
+            (number_literal)))
+    (variable_declaration
+        (identifier)
+        (binary_expression
+            (number_literal)
+            (number_literal)))
+    (variable_declaration
+        (identifier)
+        (binary_expression
+            (number_literal)
+            (number_literal))))

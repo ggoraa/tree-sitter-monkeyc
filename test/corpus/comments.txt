@@ -12,3 +12,17 @@ single line comment
     (comment)
     (comment)
     (comment))
+
+===
+multiline comments
+===
+
+/*
+ * this should probably work
+ * and not break
+ */
+
+---
+
+ (source_file
+    (comment))

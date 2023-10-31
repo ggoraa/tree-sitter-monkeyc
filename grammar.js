@@ -30,83 +30,11 @@ module.exports = grammar({
             $.comment
         ),
 
-        // Operators
+        // Useful shi
         
-        _additive_operator: $ => prec(PRECEDENCES.addition, choice(
-            "+",
-            "-"
-        )),
-
-        _multiplicative_operator: $ => prec(PRECEDENCES.multiplication, choice(
-            "*",
-            "/"
-        )),
-
-        _modulo_operator: $ => prec(PRECEDENCES.modulo, "%"),
-
-        _bitwise_operator: $ => choice(
-            prec(PRECEDENCES.bitwise_not, "~"),
-            prec(PRECEDENCES.bit_shift, "<<"),
-            prec(PRECEDENCES.bit_shift, ">>"),
-            prec(PRECEDENCES.bitwise_and, "&"),
-            prec(PRECEDENCES.bitwise_or, "|"),
-            prec(PRECEDENCES.bitwise_xor, "^"),
-        ),
-
-        _comparison_operator: $ => prec(PRECEDENCES.comparisons, choice(
-            "<",
-            "<=",
-            ">",
-            ">=",
-            "==",
-            "!=",
-        )), 
-
-        // Modifiers
-
-        visibility_modifier: $ => choice(
-            'public',
-            'private',
-            'protected'
-        ),
-
-        type: $ => seq(
-            'as',
-            field('type', $._identifier)
-        ),
-
-        // Expressions
-
-        _expression: $ => choice(
-            $._literal
-        ),
-
-        unary_expression: $ => choice(
-        ), // FIXME: implement this bitch
-
-        binary_expression: $ => choice(
-            $._additive_expression,
-            $._multiplicative_expression
-            // FIXME: this shi too
-        ),
-
-        _additive_expression: $ => binary_expr($, $._additive_operator),
-
-        _multiplicative_expression: $ => binary_expr($, $._multiplicative_operator),
-
         _semicolon: $ => ';',
-
         _identifier: $ => /[a-zA-Z_]+/,
         identifier: $ => $._identifier,
-        
-        _literal: $ => choice(
-            $.bool_literal,
-            $.null_literal,
-            $.number_literal,
-            $.string_literal,
-            $.array_literal
-        ),
-
         escape_sequence: $ => token(prec(1, seq(
             '\\',
             choice(
@@ -117,6 +45,89 @@ module.exports = grammar({
                 /U[0-9a-fA-F]{8}/
             )
         ))),
+        builtin_type: $ => choice(
+            'Any',
+            'Void',
+            'Number',
+            'Float',
+            'Long',
+            'Double',
+            'String',
+        ),
+        type: $ => seq(
+            'as',
+            field('type', $._identifier)
+        ),
+
+        // Operators
+        
+        _additive_operator: $ => choice("+", "-"),
+        _multiplicative_operator: $ => choice("*", "/"),
+        _modulo_operator: $ => "%",
+        _bitwise_not_operator: $ => "~",
+        _bit_shift_operator: $ => choice("<<", ">>"),
+        _bitwise_and_operator: $ => "&",
+        _bitwise_or_operator: $ => "|",
+        _bitwise_xor_operator: $ => "^",
+        _comparison_operator: $ => choice(
+            "<",
+            "<=",
+            ">",
+            ">=",
+            "==",
+            "!=",
+        ), 
+
+        // Modifiers
+
+        visibility_modifier: $ => choice(
+            'public',
+            'private',
+            'protected'
+        ),
+
+        // Expressions
+
+        _expression: $ => choice(
+            $._literal,
+            $.unary_expression,
+            $.binary_expression
+        ),
+        unary_expression: $ => choice(
+            // FIXME: implement this bitch
+        ),      
+        binary_expression: $ => choice(
+            $._additive_expression,
+            $._multiplicative_expression,
+            $._modulo_expression,
+            $._bitwise_not_expression,
+            $._bit_shift_expression,
+            $._bitwise_and_expression,
+            $._bitwise_or_expression,
+            $._bitwise_xor_expression,
+            $._comparison_expression,
+            // FIXME: this shi too
+        ),
+        _additive_expression: $ => binary_expr($, PRECEDENCES.addition, $._additive_operator),
+        _multiplicative_expression: $ => binary_expr($, PRECEDENCES.multiplication, $._multiplicative_operator),
+        _modulo_expression: $ => binary_expr($, PRECEDENCES.modulo, $._modulo_operator),
+        _bitwise_not_expression: $ => binary_expr($, PRECEDENCES.bitwise_not, $._bitwise_not_operator),
+        _bit_shift_expression: $ => binary_expr($, PRECEDENCES.bit_shift, $._bit_shift_operator),
+        _bitwise_and_expression: $ => binary_expr($, PRECEDENCES.bitwise_and, $._bitwise_and_operator),
+        _bitwise_or_expression: $ => binary_expr($, PRECEDENCES.bitwise_or, $._bitwise_or_operator),
+        _bitwise_xor_expression: $ => binary_expr($, PRECEDENCES.bitwise_xor, $._bitwise_xor_operator),
+        _comparison_expression: $ => binary_expr($, PRECEDENCES.comparisons, $._comparison_operator),
+        
+        // Literals
+
+        _literal: $ => choice(
+            $.bool_literal,
+            $.null_literal,
+            $.number_literal,
+            $.string_literal,
+            $.array_literal
+        ),
+
 
         string_literal: $ => seq(
             '"',
@@ -138,20 +149,7 @@ module.exports = grammar({
                 optional(","),
                 "]"
         ),
-
         null_literal: $ => token('null'),
-
-        builtin_type: $ => choice(
-            'Any',
-            'Void',
-            'Number',
-            'Float',
-            'Long',
-            'Double',
-            'String',
-            'Toybox'
-        ),
-
         variable_declaration: $ => seq(
             optional($.visibility_modifier),
             'var',
@@ -184,10 +182,10 @@ function sep1(rule, separator) {
     return seq(rule, repeat(seq(separator, rule)));
 }
 
-function binary_expr($, operator) {
-    return seq(
+function binary_expr($, precedence, operator) {
+    return prec.left(precedence, seq(
         field('lhs', $._expression),
         field('op', operator),
         field('rhs', $._expression)
-    )
+    ))
 }
