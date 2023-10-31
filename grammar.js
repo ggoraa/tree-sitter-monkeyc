@@ -152,7 +152,7 @@ module.exports = grammar({
         null_literal: $ => token('null'),
         variable_declaration: $ => seq(
             optional($.visibility_modifier),
-            'var',
+            choice('var', "const"),
             $.identifier,
             optional($.type),
             '=',

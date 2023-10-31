@@ -40,3 +40,16 @@ private var myVariable as String = "shiz";
         (type)
         (string_literal)))
 
+===
+constant
+===
+
+private const MY_CONST as Number = 69420;
+
+---
+(source_file
+    (variable_declaration
+        (visibility_modifier)
+        (identifier)
+        (type)
+        (number_literal)))
