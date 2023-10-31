@@ -172,7 +172,6 @@ module.exports = grammar({
             ),
         )),
 
-        // TODO: finish
         if_statement: $ => seq(
             'if',
             '(',
