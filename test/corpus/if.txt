@@ -1,0 +1,73 @@
+===
+simple if
+===
+
+if (69 == 420) {
+    var makeMeASanwish = true;
+}
+
+---
+
+(source_file
+ (if_statement
+  (binary_expression
+   (number_literal)
+   (number_literal))
+  (code_block
+   (variable_declaration
+    (identifier)
+    (bool_literal)))))
+
+
+===
+if else
+===
+
+if (69 != 420) {
+    var makeMeASanwish = false;
+} else {
+    // i want a sanwish tho
+}
+
+---
+
+(source_file
+ (if_statement
+  (binary_expression
+   (number_literal)
+   (number_literal))
+  (code_block
+   (variable_declaration
+    (identifier)
+    (bool_literal)))
+  (code_block
+   (comment))))
+
+===
+if, else if, else
+===
+
+if (69 > 420) {
+    // don't
+} else if (69 < 420) {
+    // do
+} else {
+    // don't...?
+}
+
+---
+
+(source_file)
+ (if_statement
+  (binary_expression
+   (number_literal)
+   (number_literal))
+  (code_block
+   (comment))
+  (binary_expression
+   (number_literal)
+   (number_literal))
+  (code_block
+   (comment))
+  (code_block
+   (comment))))

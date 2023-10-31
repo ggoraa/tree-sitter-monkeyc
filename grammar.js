@@ -27,7 +27,8 @@ module.exports = grammar({
 
         _statement: $ => choice(
             $.variable_declaration,
-            $.comment
+            $.comment,
+            $.if_statement,
         ),
 
         // Useful shi
@@ -57,6 +58,11 @@ module.exports = grammar({
         type: $ => seq(
             'as',
             field('type', $._identifier)
+        ),
+        code_block: $ => seq(
+            "{",
+            repeat($._statement),
+            "}"
         ),
 
         // Operators
@@ -106,7 +112,6 @@ module.exports = grammar({
             $._bitwise_or_expression,
             $._bitwise_xor_expression,
             $._comparison_expression,
-            // FIXME: this shi too
         ),
         _additive_expression: $ => binary_expr($, PRECEDENCES.addition, $._additive_operator),
         _multiplicative_expression: $ => binary_expr($, PRECEDENCES.multiplication, $._multiplicative_operator),
@@ -127,8 +132,6 @@ module.exports = grammar({
             $.string_literal,
             $.array_literal
         ),
-
-
         string_literal: $ => seq(
             '"',
             repeat(choice(
@@ -137,11 +140,8 @@ module.exports = grammar({
             )),
             '"'
         ),
-
         number_literal: $ => /\d+/,
-
         bool_literal: $ => choice('true', 'false'),
-
         // shamelessly stolen from tree-sitter-swift
         array_literal: ($) => seq(
             "[",
@@ -150,6 +150,9 @@ module.exports = grammar({
                 "]"
         ),
         null_literal: $ => token('null'),
+
+        // Statements
+
         variable_declaration: $ => seq(
             optional($.visibility_modifier),
             choice('var', "const"),
@@ -169,11 +172,22 @@ module.exports = grammar({
             ),
         )),
 
+        // TODO: finish
         if_statement: $ => seq(
             'if',
             '(',
-                // TODO: finish
-                ')',
+            field("if_predicate", $.binary_expression),
+            ')',
+            field("if_branch", $.code_block),
+            optional(repeat(seq(
+                "else",
+                "if",
+                "(",
+                field("else_if_predicate", $.binary_expression),
+                ")",
+                field("else_if_branch", $.code_block),
+            ))),
+            optional(seq("else", field("else_branch", $.code_block)))
         )
     }
 });
