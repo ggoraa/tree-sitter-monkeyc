@@ -33,7 +33,6 @@ module.exports = grammar({
 
         // Useful shi
         
-        _semicolon: $ => ';',
         _identifier: $ => /[a-zA-Z_]+/,
         identifier: $ => $._identifier,
         escape_sequence: $ => token(prec(1, seq(
@@ -160,7 +159,7 @@ module.exports = grammar({
             optional($.type),
             '=',
             field('value', $._expression),
-            $._semicolon
+            ";"
         ),
 
         comment: $ => token(choice(
