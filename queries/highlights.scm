@@ -1,8 +1,10 @@
 (null_literal) @variable.builtin
 (string_literal) @string
 (number_literal) @number
-(visibility_modifier) @keyword
+(bool_literal) @boolean
+
 [ ";" ] @punctuation.delimiter
+[ "(" ")" "[" "]" "{" "}"] @punctuation.bracket
 
 [
  "+"
@@ -24,9 +26,9 @@
 [
  "var"
  "const"
- ] @keyword
-
-[
  "if"
  "else"
- ] @keyword
+ "as"
+ (visibility_modifier)
+] @keyword
+
