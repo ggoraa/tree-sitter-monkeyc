@@ -13,22 +13,22 @@ var af = ["is", "this", true];
 
 (source_file
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (null_literal))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (string_literal))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (bool_literal))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (number_literal))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (array_literal))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (array_literal
             (string_literal)
             (string_literal)
@@ -47,22 +47,22 @@ var n = 1 / 2;
 
 (source_file
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (binary_expression
             (number_literal)
             (number_literal)))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (binary_expression
             (number_literal)
             (number_literal)))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (binary_expression
             (number_literal)
             (number_literal)))
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (binary_expression
             (number_literal)
             (number_literal))))

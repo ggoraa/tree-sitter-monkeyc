@@ -1,0 +1,18 @@
+===
+simple using/import
+===
+
+using Toybox.Communications;
+import Toybox.Alerts;
+
+---
+
+(source_file
+ (using_statement
+  (navigation_expression
+   (identifier)
+   (identifier)))
+ (using_statement
+  (navigation_expression
+   (identifier)
+   (identifier))))

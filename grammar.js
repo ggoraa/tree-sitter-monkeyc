@@ -29,12 +29,20 @@ module.exports = grammar({
             $.variable_declaration,
             $.comment,
             $.if_statement,
+            $.function_declaration,
+            $.using_statement,
+            $._expression
         ),
 
         // Useful shi
         
         _identifier: $ => /[a-zA-Z_]+/,
-        identifier: $ => $._identifier,
+        simple_identifier: $ => $._identifier,
+        identifier: $ => seq(
+            optional($.navigation_expression),
+            $._identifier
+        ),
+        typed_identifier: $ => seq($.simple_identifier, "as", field("type", $.identifier)),
         escape_sequence: $ => token(prec(1, seq(
             '\\',
             choice(
@@ -53,10 +61,6 @@ module.exports = grammar({
             'Long',
             'Double',
             'String',
-        ),
-        type: $ => seq(
-            'as',
-            field('type', $._identifier)
         ),
         code_block: $ => seq(
             "{",
@@ -94,8 +98,11 @@ module.exports = grammar({
 
         _expression: $ => choice(
             $._literal,
+            $.identifier,
             $.unary_expression,
-            $.binary_expression
+            $.binary_expression,
+            $.array_index_expression,
+            $.call_expression,
         ),
         unary_expression: $ => choice(
             // FIXME: implement this bitch
@@ -110,6 +117,7 @@ module.exports = grammar({
             $._bitwise_or_expression,
             $._bitwise_xor_expression,
             $._comparison_expression,
+            $._as_expression
         ),
         _additive_expression: $ => binary_expr($, PRECEDENCES.addition, $._additive_operator),
         _multiplicative_expression: $ => binary_expr($, PRECEDENCES.multiplication, $._multiplicative_operator),
@@ -120,7 +128,8 @@ module.exports = grammar({
         _bitwise_or_expression: $ => binary_expr($, PRECEDENCES.bitwise_or, $._bitwise_or_operator),
         _bitwise_xor_expression: $ => binary_expr($, PRECEDENCES.bitwise_xor, $._bitwise_xor_operator),
         _comparison_expression: $ => binary_expr($, PRECEDENCES.comparisons, $._comparison_operator),
-        
+        _as_expression: $ => binary_expr($, PRECEDENCES.function_invocation, "as"),
+
         // Literals
 
         _literal: $ => choice(
@@ -149,18 +158,29 @@ module.exports = grammar({
         ),
         null_literal: $ => token('null'),
 
+        // Suffixes
+
+        call_suffix: $ => seq(
+            "(",
+            optional(field("argument_list", sep1($._expression, ","))),
+            ")",
+            ";"
+        ),
+        array_index_suffix: $ => seq("[", $._expression, "]"),
+
         // Statements
 
         variable_declaration: $ => seq(
             optional($.visibility_modifier),
             choice('var', "const"),
-            $.identifier,
-            optional($.type),
+            choice(
+                $.simple_identifier,
+                $.typed_identifier
+            ),
             '=',
             field('value', $._expression),
             ";"
         ),
-
         comment: $ => token(choice(
             seq('//', /(\\+(.|\r?\n)|[^\\\n])*/),
             seq(
@@ -169,23 +189,54 @@ module.exports = grammar({
                 '/',
             ),
         )),
-
         if_statement: $ => seq(
             'if',
-            '(',
-            field("if_predicate", $.binary_expression),
-            ')',
+            "(",
+            field("if_condition", $._expression),
+            ")",
             field("if_branch", $.code_block),
             optional(repeat(seq(
                 "else",
                 "if",
                 "(",
-                field("else_if_predicate", $.binary_expression),
+                field("else_if_condition", $.binary_expression),
                 ")",
                 field("else_if_branch", $.code_block),
             ))),
             optional(seq("else", field("else_branch", $.code_block)))
-        )
+        ),
+        navigation_expression: $ => prec(-1, seq(
+            field("path", sep1($.identifier, ".")),
+            ".",
+            field("target", $.identifier)
+        )),
+        call_expression: $ => seq(
+            $.navigation_expression,
+            $.call_suffix
+        ),
+        array_index_expression: $ => seq(
+            $.navigation_expression,
+            $.array_index_suffix
+        ),
+        function_declaration: $ => seq(
+            optional($.visibility_modifier),
+            "function",
+            field("name", $.simple_identifier),
+            "(",
+            optional(field("argument", sep1(choice($.simple_identifier, $.typed_identifier), ","))),
+            ")",
+            optional(field("type", seq("as", $.identifier))),
+            field("body", $.code_block),
+        ),
+        using_statement: $ => seq(
+            field("method", choice(
+                "import",
+                "using"
+            )),
+            $.navigation_expression,
+            ";"
+        ),
+
     }
 });
 
@@ -194,9 +245,14 @@ function sep1(rule, separator) {
 }
 
 function binary_expr($, precedence, operator) {
-    return prec.left(precedence, seq(
+    const sequence = seq(
         field('lhs', $._expression),
         field('op', operator),
         field('rhs', $._expression)
-    ))
+    )
+    if (precedence == null) {
+        return sequence
+    } else {
+        return prec.left(precedence, sequence)
+    }
 }

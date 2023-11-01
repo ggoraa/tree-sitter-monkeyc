@@ -8,7 +8,7 @@ var myVariable = "some shiz";
 
 (source_file
     (variable_declaration
-        (identifier)
+        (simple_identifier)
         (string_literal)))
 
 ===
@@ -20,10 +20,11 @@ var myVariable as Number = 2;
 ---
 
 (source_file
-    (variable_declaration
-        (identifier)
-        (type)
-        (number_literal)))
+ (variable_declaration
+  (typed_identifier
+   (simple_identifier)
+   (identifier))
+   (number_literal)))
 
 ===
 variable with visibility
@@ -34,11 +35,12 @@ private var myVariable as String = "shiz";
 ---
 
 (source_file
-    (variable_declaration
-        (visibility_modifier)
-        (identifier)
-        (type)
-        (string_literal)))
+ (variable_declaration
+  (visibility_modifier)
+  (typed_identifier
+   (simple_identifier)
+   (identifier))
+  (string_literal)))
 
 ===
 constant
@@ -48,8 +50,9 @@ private const MY_CONST as Number = 69420;
 
 ---
 (source_file
-    (variable_declaration
-        (visibility_modifier)
-        (identifier)
-        (type)
-        (number_literal)))
+ (variable_declaration
+  (visibility_modifier)
+  (typed_identifier
+   (simple_identifier)
+   (identifier))
+  (number_literal)))

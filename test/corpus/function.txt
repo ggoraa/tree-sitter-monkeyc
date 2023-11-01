@@ -1,0 +1,92 @@
+===
+simple function call
+===
+
+myFunction();
+
+---
+
+(source_file
+    (function_call
+        (identifier)))
+
+===
+function with arguments
+===
+
+myFunction(withAnArgument, andAlsoWithThis as String);
+
+---
+
+(source_file
+ (function_call
+  (identifier)
+  (identifier)
+  (binary_expression
+   (identifier)
+   (identifier))))
+
+===
+member function call
+===
+
+Communications.makeWebRequest();
+
+---
+
+(source_file)
+
+===
+function declaration
+===
+
+function myFunction() {
+    // code here
+}
+
+---
+
+(source_file
+ (function_declaration
+  (identifier)
+  (code_block
+   (comment))))
+
+===
+function declaration with arguments
+===
+
+function myFunction(firstArgument, secondArgument) {
+    // code here
+}
+
+---
+
+(source_file
+ (function_declaration
+  (identifier)
+  (identifier)
+  (identifier)
+  (code_block
+   (comment))))
+
+===
+function declaration with types
+===
+
+function myFunction(firstArgument, secondArgument as String) as Void {
+    // code here
+}
+
+---
+
+(source_file
+ (function_declaration
+  (identifier)
+  (identifier)
+  (typed_identifier
+   (identifier)
+   (identifier))
+  (identifier)
+  (code_block
+   (comment))))
